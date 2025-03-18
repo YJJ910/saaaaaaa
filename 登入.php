@@ -15,7 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         header("Location: dashboard.php");
         exit();
     } else {
-        echo "登入失敗，請檢查帳號或密碼。";
+        echo "失敗，請檢查帳號或密碼。";
     }
 }
 ?>
