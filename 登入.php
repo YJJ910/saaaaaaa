@@ -22,5 +22,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <form method="POST">
     <input type="email" name="email" required placeholder="Email">
     <input type="password" name="password" required placeholder="密碼">
-    <button type="submit">登入</button>
+    <button type="submit">登出</button>
 </form>
