@@ -1,33 +1,3 @@
-<?php
-include 'db.php';
-
-$errorMessage = '';
-$successMessage = '';
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $email = trim($_POST['email']);
-    $password = trim($_POST['password']);
-    
-    // 檢查 Email 是否已存在
-    $checkStmt = $pdo->prepare("SELECT id FROM users WHERE email = :email");
-    $checkStmt->execute(['email' => $email]);
-    
-    if ($checkStmt->fetch()) {
-        $errorMessage = "❌ 此 Email 已經被註冊，請使用其他 Email。";
-    } else {
-        $hashedPassword = password_hash($password, PASSWORD_DEFAULT); // 加密密碼
-        $stmt = $pdo->prepare("INSERT INTO users (email, password) VALUES (:email, :password)");
-
-        try {
-            $stmt->execute(['email' => $email, 'password' => $hashedPassword]);
-            $successMessage = "✅ 註冊成功！<a href='login.php'>點此登入</a>";
-        } catch (PDOException $e) {
-            $errorMessage = "❌ 註冊失敗：" . $e->getMessage();
-        }
-    }
-}
-?>
-
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
@@ -37,13 +7,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
-            background: #f8f9fa;
+            background: url('https://img.ltn.com.tw/Upload/news/600/2021/12/09/3762840_1_1.jpg') no-repeat center center fixed;
+            background-size: cover;
         }
         .register-container {
             max-width: 400px;
             margin: 80px auto;
             padding: 30px;
-            background: white;
+            background: rgba(255, 255, 255, 0.9); /* 增加透明效果 */
             border-radius: 10px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }
@@ -64,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <div class="container">
     <div class="register-container">
-        <h2 class="text-center mb-4">📝 註冊帳號</h2>
+        <h2 class="text-center mb-4">📝 轉學生交流平台</h2>
 
         <?php if (!empty($errorMessage)): ?>
             <div class="alert alert-danger text-center">
