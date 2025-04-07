@@ -5,7 +5,7 @@
     <title>文章列表</title>
     <style>
         body {
-            background: #e9f7f1; /* 柔和藍灰色 */
+            background: #e9f7f1;
             padding: 20px;
             font-family: sans-serif;
         }
@@ -28,23 +28,43 @@
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            text-decoration: none; /* 去掉底線 */
+            text-decoration: none;
             display: inline-block;
         }
         .btn-edit { background: #28a745; color: white; }
         .btn-delete { background: #dc3545; color: white; }
         .btn-like { background: #ffc107; color: black; }
         .btn-share { background: #17a2b8; color: white; }
-        .btn-new-post {
-            margin-bottom: 20px; /* 增加與文章間距 */
+        .btn-new-post { margin-bottom: 20px; }
+
+        .search-box {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .search-box input[type="text"] {
+            flex-grow: 1;
+            padding: 8px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <h2>📚 文章列表</h2>
+
+        <!-- 🔍 搜尋欄位 -->
+        <form class="search-box" action="search.php" method="GET">
+            <input type="text" name="keyword" placeholder="輸入關鍵字搜尋..." required>
+            <button type="submit" class="btn btn-edit">🔍 搜尋</button>
+        </form>
+
+        <!-- ➕ 發表文章 -->
         <a href="post_create.php" class="btn btn-edit btn-new-post">➕ 發表新文章</a>
 
+        <!-- 📝 單篇文章範例 -->
         <div class="article">
             <h3>轉學經驗分享</h3>
             <p>剛轉學的那一年真的有點孤單，但我找到很多資源來幫助自己。</p>
