@@ -49,6 +49,26 @@
             border-radius: 5px;
             border: 1px solid #ccc;
         }
+        .section {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+        .section h3 {
+            margin-bottom: 15px;
+        }
+        .section form {
+            display: flex;
+            flex-direction: column;
+        }
+        .section input[type="text"], .section textarea {
+            padding: 8px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
     </style>
 </head>
 <body>
@@ -82,6 +102,21 @@
             </form>
             <p>💬 留言：很有共鳴！我也是剛轉來～</p>
         </div>
+
+        <!-- 🌐 尋找學伴 -->
+        <div class="section">
+            <h3>🤝 尋找學伴</h3>
+            <a href="search_partner.php" class="btn btn-edit">搜尋學伴</a>
+            <p>你可以在新頁面中輸入學科名稱，尋找合適的學伴。</p>
+        </div>
+
+        <!-- 🎯 設定學習目標 -->
+        <div class="section">
+            <h3>🎯 設定學習目標</h3>
+            <a href="set_goal.php" class="btn btn-edit">設定學習目標</a>
+            <p>你可以在新頁面中設定學習目標來規劃學習進度。</p>
+        </div>
+
     </div>
 </body>
 </html>
