@@ -4,20 +4,46 @@
     <meta charset="UTF-8">
     <title>文章列表</title>
     <style>
-        body { background: #007BFF; padding: 20px; font-family: sans-serif; }
-        .container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 10px; }
-        .article { border: 1px solid #ddd; padding: 15px; margin-bottom: 20px; border-radius: 8px; }
-        .btn { padding: 6px 12px; margin-right: 8px; border: none; border-radius: 5px; cursor: pointer; }
+        body {
+            background: #e9f7f1; /* 柔和藍灰色 */
+            padding: 20px;
+            font-family: sans-serif;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+        }
+        .article {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
+        .btn {
+            padding: 6px 12px;
+            margin-right: 8px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none; /* 去掉底線 */
+            display: inline-block;
+        }
         .btn-edit { background: #28a745; color: white; }
         .btn-delete { background: #dc3545; color: white; }
         .btn-like { background: #ffc107; color: black; }
         .btn-share { background: #17a2b8; color: white; }
+        .btn-new-post {
+            margin-bottom: 20px; /* 增加與文章間距 */
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h2>📚 文章列表</h2>
-        <a href="post_create.php" class="btn btn-edit">➕ 發表新文章</a>
+        <a href="post_create.php" class="btn btn-edit btn-new-post">➕ 發表新文章</a>
 
         <div class="article">
             <h3>轉學經驗分享</h3>
