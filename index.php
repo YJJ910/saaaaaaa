@@ -5,7 +5,7 @@
     <title>文章列表</title>
     <style>
         body {
-            background: #e9f7f1;
+            background:#f0ede5;
             padding: 20px;
             font-family: sans-serif;
         }
@@ -107,6 +107,7 @@
         <div class="section">
             <h3>🤝 尋找學伴</h3>
             <a href="search_partner.php" class="btn btn-edit">搜尋學伴</a>
+
         </div>
 
         <!-- 🎯 設定學習目標 -->

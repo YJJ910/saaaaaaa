@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head><meta charset="UTF-8"><title>修改文章</title></head>
-<body style="background:#007BFF; font-family:sans-serif; padding:20px;">
+<body style="background:#f0ede5; font-family:sans-serif; padding:20px;">
     <div style="max-width:600px; margin:auto; background:white; padding:20px; border-radius:10px;">
         <h2>✏️ 修改文章</h2>
         <form action="#" method="POST">
