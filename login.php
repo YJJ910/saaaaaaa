@@ -61,7 +61,7 @@
         </form>
 
         <p class="text-center mt-3">
-            還沒有帳號？ <a href="register.php">註冊</a>
+            還沒有帳號？ <a href="註冊.php">註冊</a>
         </p>
     </div>
 </div>
