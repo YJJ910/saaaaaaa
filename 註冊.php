@@ -1,3 +1,34 @@
+<?php
+require_once 'db_account.php'; // 引入 sa_account 資料庫連線
+
+$errorMessage = '';
+$successMessage = '';
+
+// 如果使用者送出表單
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $email = $_POST['email'] ?? '';
+    $password = $_POST['password'] ?? '';
+
+    // 簡單驗證
+    if (empty($email) || empty($password)) {
+        $errorMessage = '請填寫所有欄位。';
+    } else {
+        try {
+            // 準備 SQL 插入語法（不使用密碼加密）
+            $stmt = $pdo->prepare("INSERT INTO account (email, password) VALUES (:email, :password)");
+            $stmt->execute([
+                ':email' => $email,
+                ':password' => $password // 沒有加密直接存明文密碼
+            ]);
+
+            $successMessage = '註冊成功！';
+        } catch (PDOException $e) {
+            $errorMessage = '註冊失敗：' . $e->getMessage();
+        }
+    }
+}
+?>
+
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
@@ -14,7 +45,7 @@
             max-width: 400px;
             margin: 80px auto;
             padding: 30px;
-            background: rgba(255, 255, 255, 0.9); /* 增加透明效果 */
+            background: rgba(255, 255, 255, 0.9);
             border-radius: 10px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }
@@ -39,13 +70,13 @@
 
         <?php if (!empty($errorMessage)): ?>
             <div class="alert alert-danger text-center">
-                <?= $errorMessage ?>
+                <?= htmlspecialchars($errorMessage) ?>
             </div>
         <?php endif; ?>
 
         <?php if (!empty($successMessage)): ?>
             <div class="alert alert-success text-center">
-                <?= $successMessage ?>
+                <?= htmlspecialchars($successMessage) ?>
             </div>
         <?php endif; ?>
 

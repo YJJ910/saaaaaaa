@@ -1,3 +1,30 @@
+<?php
+session_start();
+
+// 檢查是否已登入
+if (!isset($_SESSION['user'])) {
+    die("請先登入才能查看文章或留言");
+}
+
+// 資料庫連線設定
+$servername = "localhost";
+$username = "root";  // 資料庫使用者名稱
+$password = "";      // 密碼為空
+$dbname = "sa_account";  // 資料庫名稱
+
+// 創建資料庫連線
+$conn = new mysqli($servername, $username, $password, $dbname);
+
+// 檢查連線
+if ($conn->connect_error) {
+    die("連接失敗: " . $conn->connect_error);
+}
+
+// 從資料庫讀取所有文章
+$sql = "SELECT * FROM post ORDER BY created_at DESC"; // 按照發表時間排序
+$result = $conn->query($sql);
+?>
+
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
@@ -5,7 +32,7 @@
     <title>文章列表</title>
     <style>
         body {
-            background:#f0ede5;
+            background: #f0ede5;
             padding: 20px;
             font-family: sans-serif;
         }
@@ -59,16 +86,6 @@
         .section h3 {
             margin-bottom: 15px;
         }
-        .section form {
-            display: flex;
-            flex-direction: column;
-        }
-        .section input[type="text"], .section textarea {
-            padding: 8px;
-            margin: 10px 0;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-        }
     </style>
 </head>
 <body>
@@ -84,38 +101,60 @@
         <!-- ➕ 發表文章 -->
         <a href="post_create.php" class="btn btn-edit btn-new-post">➕ 發表新文章</a>
 
-        <!-- 📝 單篇文章範例 -->
-        <div class="article">
-            <h3>轉學經驗分享</h3>
-            <p>剛轉學的那一年真的有點孤單，但我找到很多資源來幫助自己。</p>
-            <small>作者：example@email.com</small>
-            <br><br>
-            <a href="post_edit.php?id=1" class="btn btn-edit">✏️ 修改</a>
-            <a href="post_delete.php?id=1" class="btn btn-delete">🗑️ 刪除</a>
-            <a href="like.php?id=1" class="btn btn-like">👍 按讚 (5)</a>
-            <a href="share.php?id=1" class="btn btn-share">🔗 分享</a>
-            <hr>
-            <form action="comment_add.php" method="POST">
-                <input type="hidden" name="post_id" value="1">
-                <input type="text" name="comment" placeholder="留言..." required style="width: 70%;">
-                <button class="btn btn-edit">留言</button>
-            </form>
-            <p>💬 留言：很有共鳴！我也是剛轉來～</p>
-        </div>
+        <?php
+        if ($result->num_rows > 0) {
+            while($row = $result->fetch_assoc()) {
+                echo "<div class='article'>";
+                echo "<h1>" . htmlspecialchars($row['title']) . "</h1>";
+                echo "<p><strong>" . htmlspecialchars($row['content']) . "</strong></p>";
+                echo "<p>需要學伴數量：" . htmlspecialchars($row['needed_partners']) . "</p>";
 
-        <!-- 🌐 尋找學伴 -->
-        <div class="section">
-            <h3>🤝 尋找學伴</h3>
-            <a href="search_partner.php" class="btn btn-edit">搜尋學伴</a>
+                // 顯示學系、年級
+                echo "<small>作者：" . htmlspecialchars($row['author']) . "</small><br>";
+                echo "<p><small>學系：" . htmlspecialchars($row['department']) . "</small></p>";
+                echo "<p><small>年級：" . htmlspecialchars($row['grade']) . "</small></p>";
 
-        </div>
+                // 發表時間
+                echo "<p><small>發表時間：" . $row['created_at'] . "</small></p>";
+                echo "<a href='post_edit.php?id=" . $row['id'] . "' class='btn btn-edit'>✏️ 修改</a>";
+                echo "<a href='post_delete.php?id=" . $row['id'] . "' class='btn btn-delete'>🗑️ 刪除</a>";
+                echo "<a href='like.php?id=" . $row['id'] . "' class='btn btn-like'>👍 按讚</a>";
+                echo "<a href='share.php?id=" . $row['id'] . "' class='btn btn-share'>🔗 分享</a>";
+                echo "<hr>";
 
-        <!-- 🎯 設定學習目標 -->
-        <div class="section">
-            <h3>🎯 設定學習目標</h3>
-            <a href="set_goal.php" class="btn btn-edit">設定學習目標</a>
-        </div>
+                // 留言區
+                echo "<form action='comment_add.php' method='POST'>";
+                echo "<input type='hidden' name='post_id' value='" . $row['id'] . "'>";
+                echo "<input type='text' name='comment' placeholder='留言...' required style='width: 70%;'>";
+                echo "<button class='btn btn-edit'>留言</button>";
+                echo "</form>";
+
+                // 顯示留言
+                $post_id = $row['id'];
+                $comment_sql = "SELECT * FROM comment WHERE post_id = $post_id ORDER BY created_at ASC";
+                $comment_result = $conn->query($comment_sql);
+
+                if ($comment_result->num_rows > 0) {
+                    while ($comment_row = $comment_result->fetch_assoc()) {
+                        echo "<p><strong>" . htmlspecialchars($comment_row['email']) . "</strong><br>";
+                        echo htmlspecialchars($comment_row['content']) . "<br>";
+                        echo "<small>留言時間：" . $comment_row['created_at'] . "</small></p>";
+                    }
+                } else {
+                    echo "<p>目前沒有留言。</p>";
+                }
+
+                echo "</div>";
+            }
+        } else {
+            echo "<p>目前沒有文章。</p>";
+        }
+        ?>
 
     </div>
 </body>
 </html>
+
+<?php
+$conn->close();
+?>
