@@ -8,20 +8,18 @@ if (!isset($_SESSION['user'])) {
 
 // 資料庫連線設定
 $servername = "localhost";
-$username = "root";  // 資料庫使用者名稱
-$password = "";      // 密碼為空
-$dbname = "sa_account";  // 資料庫名稱
+$username = "root";
+$password = "";
+$dbname = "sa_account";
 
-// 創建資料庫連線
+// 建立連線
 $conn = new mysqli($servername, $username, $password, $dbname);
-
-// 檢查連線
 if ($conn->connect_error) {
-    die("連接失敗: " . $conn->connect_error);
+    die("連線失敗：" . $conn->connect_error);
 }
 
-// 從資料庫讀取所有文章
-$sql = "SELECT * FROM post ORDER BY created_at DESC"; // 按照發表時間排序
+// 取得所有文章
+$sql = "SELECT * FROM post ORDER BY created_at DESC";
 $result = $conn->query($sql);
 ?>
 
@@ -76,82 +74,80 @@ $result = $conn->query($sql);
             border-radius: 5px;
             border: 1px solid #ccc;
         }
-        .section {
-            margin-top: 30px;
-            padding: 20px;
-            background: #f9f9f9;
-            border-radius: 8px;
-            border: 1px solid #ddd;
-        }
-        .section h3 {
-            margin-bottom: 15px;
-        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h2>📚 文章列表</h2>
+<div class="container">
+    <h2>📚 文章列表</h2>
 
-        <!-- 🔍 搜尋欄位 -->
-        <form class="search-box" action="search.php" method="GET">
-            <input type="text" name="keyword" placeholder="輸入關鍵字搜尋..." required>
-            <button type="submit" class="btn btn-edit">🔍 搜尋</button>
-        </form>
+    <!-- 搜尋欄 -->
+    <form class="search-box" action="search.php" method="GET">
+        <input type="text" name="keyword" placeholder="輸入關鍵字搜尋..." required>
+        <button type="submit" class="btn btn-edit">🔍 搜尋</button>
+    </form>
 
-        <!-- ➕ 發表文章 -->
-        <a href="post_create.php" class="btn btn-edit btn-new-post">➕ 發表新文章</a>
+    <!-- 發表文章 -->
+    <a href="post_create.php" class="btn btn-edit btn-new-post">➕ 發表新文章</a>
 
-        <?php
-        if ($result->num_rows > 0) {
-            while($row = $result->fetch_assoc()) {
-                echo "<div class='article'>";
-                echo "<h1>" . htmlspecialchars($row['title']) . "</h1>";
-                echo "<p><strong>" . htmlspecialchars($row['content']) . "</strong></p>";
-                echo "<p>需要學伴數量：" . htmlspecialchars($row['needed_partners']) . "</p>";
+    <?php
+    if ($result->num_rows > 0) {
+        while($row = $result->fetch_assoc()) {
+            echo "<div class='article'>";
+            echo "<h1>" . htmlspecialchars($row['title']) . "</h1>";
+            echo "<p><strong>" . htmlspecialchars($row['content']) . "</strong></p>";
+            echo "<p>需要學伴數量：" . htmlspecialchars($row['needed_partners']) . "</p>";
+            echo "<small>作者：" . htmlspecialchars($row['author']) . "</small><br>";
+            echo "<p><small>學系：" . htmlspecialchars($row['department']) . "</small></p>";
+            echo "<p><small>年級：" . htmlspecialchars($row['grade']) . "</small></p>";
+            echo "<p><small>發表時間：" . $row['created_at'] . "</small></p>";
+            echo "<a href='post_edit.php?id=" . $row['id'] . "' class='btn btn-edit'>✏️ 修改</a>";
+            echo "<a href='post_delete.php?id=" . $row['id'] . "' class='btn btn-delete'>🗑️ 刪除</a>";
+            echo "<a href='like.php?id=" . $row['id'] . "' class='btn btn-like'>👍 按讚</a>";
+            echo "<a href='share.php?id=" . $row['id'] . "' class='btn btn-share'>🔗 分享</a>";
+            echo "<hr>";
 
-                // 顯示學系、年級
-                echo "<small>作者：" . htmlspecialchars($row['author']) . "</small><br>";
-                echo "<p><small>學系：" . htmlspecialchars($row['department']) . "</small></p>";
-                echo "<p><small>年級：" . htmlspecialchars($row['grade']) . "</small></p>";
+            // 留言表單
+            echo "<form action='comment_add.php' method='POST'>";
+            echo "<input type='hidden' name='post_id' value='" . $row['id'] . "'>";
+            echo "<input type='text' name='comment' placeholder='留言...' required style='width: 70%;'>";
+            echo "<button class='btn btn-edit'>留言</button>";
+            echo "</form>";
 
-                // 發表時間
-                echo "<p><small>發表時間：" . $row['created_at'] . "</small></p>";
-                echo "<a href='post_edit.php?id=" . $row['id'] . "' class='btn btn-edit'>✏️ 修改</a>";
-                echo "<a href='post_delete.php?id=" . $row['id'] . "' class='btn btn-delete'>🗑️ 刪除</a>";
-                echo "<a href='like.php?id=" . $row['id'] . "' class='btn btn-like'>👍 按讚</a>";
-                echo "<a href='share.php?id=" . $row['id'] . "' class='btn btn-share'>🔗 分享</a>";
-                echo "<hr>";
+            // 顯示留言
+            $post_id = $row['id'];
+            $comment_sql = "SELECT * FROM comment WHERE post_id = $post_id ORDER BY created_at ASC";
+            $comment_result = $conn->query($comment_sql);
 
-                // 留言區
-                echo "<form action='comment_add.php' method='POST'>";
-                echo "<input type='hidden' name='post_id' value='" . $row['id'] . "'>";
-                echo "<input type='text' name='comment' placeholder='留言...' required style='width: 70%;'>";
-                echo "<button class='btn btn-edit'>留言</button>";
-                echo "</form>";
+            if ($comment_result->num_rows > 0) {
+                while ($comment_row = $comment_result->fetch_assoc()) {
+                    $comment_id = $comment_row['id'];
+                    $comment_email = $comment_row['email'];
+                    $logged_in_user = $_SESSION['user'];
 
-                // 顯示留言
-                $post_id = $row['id'];
-                $comment_sql = "SELECT * FROM comment WHERE post_id = $post_id ORDER BY created_at ASC";
-                $comment_result = $conn->query($comment_sql);
+                    echo "<p><strong>" . htmlspecialchars($comment_email) . "</strong><br>";
+                    echo htmlspecialchars($comment_row['content']) . "<br>";
+                    echo "<small>留言時間：" . $comment_row['created_at'] . "</small></p>";
 
-                if ($comment_result->num_rows > 0) {
-                    while ($comment_row = $comment_result->fetch_assoc()) {
-                        echo "<p><strong>" . htmlspecialchars($comment_row['email']) . "</strong><br>";
-                        echo htmlspecialchars($comment_row['content']) . "<br>";
-                        echo "<small>留言時間：" . $comment_row['created_at'] . "</small></p>";
+                    // 若是本人留言才可刪除
+                    if ($comment_email === $logged_in_user) {
+                        echo "<form action='comment_delete.php' method='POST' style='display:inline;'>";
+                        echo "<input type='hidden' name='comment_id' value='" . $comment_id . "'>";
+                        echo "<button type='submit' class='btn btn-delete' onclick=\"return confirm('確定要刪除這則留言嗎？');\">刪除留言</button>";
+                        echo "</form>";
                     }
-                } else {
-                    echo "<p>目前沒有留言。</p>";
                 }
-
-                echo "</div>";
+            } else {
+                echo "<p>目前沒有留言。</p>";
             }
-        } else {
-            echo "<p>目前沒有文章。</p>";
-        }
-        ?>
 
-    </div>
+            echo "</div>";
+        }
+    } else {
+        echo "<p>目前沒有文章。</p>";
+    }
+    ?>
+
+</div>
 </body>
 </html>
 
