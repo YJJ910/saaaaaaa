@@ -78,6 +78,12 @@ $result = $conn->query($sql);
 </head>
 <body>
 <div class="container">
+    <div style="text-align: right;">
+        <form action="logout.php" method="post" style="display: inline;">
+            <button type="submit" class="btn btn-delete">🚪 登出</button>
+        </form>
+    </div>
+<div class="container">
     <h2>📚 文章列表</h2>
 
     <!-- 搜尋欄 -->
@@ -94,14 +100,19 @@ $result = $conn->query($sql);
         while($row = $result->fetch_assoc()) {
             echo "<div class='article'>";
             echo "<h1>" . htmlspecialchars($row['title']) . "</h1>";
-            echo "<p><strong>" . htmlspecialchars($row['content']) . "</strong></p>";
+            echo "<p><strong>" . nl2br(htmlspecialchars($row['content'])) . "</strong></p>";
             echo "<p>需要學伴數量：" . htmlspecialchars($row['needed_partners']) . "</p>";
             echo "<small>作者：" . htmlspecialchars($row['author']) . "</small><br>";
             echo "<p><small>學系：" . htmlspecialchars($row['department']) . "</small></p>";
             echo "<p><small>年級：" . htmlspecialchars($row['grade']) . "</small></p>";
             echo "<p><small>發表時間：" . $row['created_at'] . "</small></p>";
-            echo "<a href='post_edit.php?id=" . $row['id'] . "' class='btn btn-edit'>✏️ 修改</a>";
-            echo "<a href='post_delete.php?id=" . $row['id'] . "' class='btn btn-delete'>🗑️ 刪除</a>";
+
+            // 只有作者可以看到修改與刪除按鈕
+            if ($row['author'] === $_SESSION['user']) {
+                echo "<a href='post_edit.php?id=" . $row['id'] . "' class='btn btn-edit'>✏️ 修改</a>";
+                echo "<a href='post_delete.php?id=" . $row['id'] . "' class='btn btn-delete' onclick=\"return confirm('確定要刪除這篇文章嗎？');\">🗑️ 刪除</a>";
+            }
+
             echo "<a href='like.php?id=" . $row['id'] . "' class='btn btn-like'>👍 按讚</a>";
             echo "<a href='share.php?id=" . $row['id'] . "' class='btn btn-share'>🔗 分享</a>";
             echo "<hr>";
@@ -122,22 +133,22 @@ $result = $conn->query($sql);
                 while ($comment_row = $comment_result->fetch_assoc()) {
                     $comment_id = $comment_row['id'];
                     $comment_email = $comment_row['email'];
-                    $logged_in_user = $_SESSION['user'];
+                    $comment_content = htmlspecialchars($comment_row['content']);
 
                     echo "<p><strong>" . htmlspecialchars($comment_email) . "</strong><br>";
-                    echo htmlspecialchars($comment_row['content']) . "<br>";
+                    echo $comment_content . "<br>";
                     echo "<small>留言時間：" . $comment_row['created_at'] . "</small></p>";
 
-                    // 若是本人留言才可刪除
-                    if ($comment_email === $logged_in_user) {
+                    // 留言本人可以刪除
+                    if ($comment_email === $_SESSION['user']) {
                         echo "<form action='comment_delete.php' method='POST' style='display:inline;'>";
                         echo "<input type='hidden' name='comment_id' value='" . $comment_id . "'>";
-                        echo "<button type='submit' class='btn btn-delete' onclick=\"return confirm('確定要刪除這則留言嗎？');\">刪除留言</button>";
+                        echo "<button type='submit' class='btn btn-delete' onclick=\"return confirm('確定要刪除這則留言嗎？');\">🗑️刪除留言</button>";
                         echo "</form>";
                     }
                 }
             } else {
-                echo "<p>目前沒有留言。</p>";
+                echo "<p>你的留言區空無一人QQ。</p>";
             }
 
             echo "</div>";
