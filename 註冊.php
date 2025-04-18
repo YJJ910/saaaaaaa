@@ -51,6 +51,11 @@
 
         <form method="POST">
             <div class="mb-3">
+                <label for="nickname" class="form-label">帳號暱稱</label>
+                <input type="text" class="form-control" name="nickname" id="nickname" required placeholder="請輸入暱稱">
+             </div>
+
+            <div class="mb-3">
                 <label for="email" class="form-label">電子郵件</label>
                 <input type="email" class="form-control" name="email" id="email" required placeholder="請輸入 Email">
             </div>
