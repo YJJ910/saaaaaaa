@@ -191,7 +191,6 @@ $result = $conn->query($sql);
       <a href="post_create.php">✏️ 撰寫文章</a>
       <a href="search.php">🔍 搜尋</a>
       <a href="profile.php">👤 個人檔案</a>
-      <a href="set_goal.php">🎯 學習目標</a> <!-- 如不再需要，這行也可刪除 -->
     </div>
   </div>
 </header>
@@ -200,13 +199,11 @@ $result = $conn->query($sql);
   <div class="main-content">
     <h2>📚 文章列表</h2>
 
-    <!-- 🔍 搜尋欄位 -->
     <form class="search-box" action="search.php" method="GET">
       <input type="text" name="keyword" placeholder="輸入關鍵字搜尋..." required>
       <button type="submit" class="btn btn-edit">🔍 搜尋</button>
     </form>
 
-    <!-- 發表文章 -->
     <a href="post_create.php" class="btn btn-edit btn-new-post">➕ 發表新文章</a>
 
     <?php
@@ -221,7 +218,6 @@ $result = $conn->query($sql);
             echo "<p><small>年級：" . htmlspecialchars($row['grade']) . "</small></p>";
             echo "<p><small>發表時間：" . $row['created_at'] . "</small></p>";
 
-            // 只有作者可以看到修改與刪除按鈕
             if ($row['author'] === $_SESSION['user']) {
                 echo "<a href='post_edit.php?id=" . $row['id'] . "' class='btn btn-edit'>✏️ 修改</a>";
                 echo "<a href='post_delete.php?id=" . $row['id'] . "' class='btn btn-delete' onclick=\"return confirm('確定要刪除這篇文章嗎？');\">🗑️ 刪除</a>";
@@ -231,14 +227,12 @@ $result = $conn->query($sql);
             echo "<a href='share.php?id=" . $row['id'] . "' class='btn btn-share'>🔗 分享</a>";
             echo "<hr>";
 
-            // 留言表單
             echo "<form action='comment_add.php' method='POST'>";
             echo "<input type='hidden' name='post_id' value='" . $row['id'] . "'>";
             echo "<input type='text' name='comment' placeholder='留言...' required style='width: 70%;'>";
             echo "<button class='btn btn-edit'>留言</button>";
             echo "</form>";
 
-            // 顯示留言
             $post_id = $row['id'];
             $comment_sql = "SELECT * FROM comment WHERE post_id = $post_id ORDER BY created_at ASC";
             $comment_result = $conn->query($comment_sql);
@@ -253,7 +247,6 @@ $result = $conn->query($sql);
                     echo $comment_content . "<br>";
                     echo "<small>留言時間：" . $comment_row['created_at'] . "</small></p>";
 
-                    // 留言本人可以刪除
                     if ($comment_email === $_SESSION['user']) {
                         echo "<form action='comment_delete.php' method='POST' style='display:inline;'>";
                         echo "<input type='hidden' name='comment_id' value='" . $comment_id . "'>";
@@ -271,6 +264,8 @@ $result = $conn->query($sql);
         echo "<p>目前沒有文章。</p>";
     }
     ?>
+  </div>
+
   <div class="sidebar">
     <div class="card">
       <h4>📝 撰寫文章</h4>
@@ -287,6 +282,7 @@ $result = $conn->query($sql);
       <a href="set_goal.php">設定目標</a>
     </div>
   </div>
+</div>
 </div>
 
 </body>
