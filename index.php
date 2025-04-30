@@ -154,27 +154,6 @@
       border-radius: 5px;
       border: 1px solid #ccc;
     }
-
-    .section {
-      margin-top: 30px;
-      padding: 20px;
-      background: #fff8e1;
-      border-radius: 8px;
-      border-left: 5px solid #f4a261;
-    }
-
-    .section h3 {
-      margin-bottom: 15px;
-    }
-
-    .section a {
-      display: inline-block;
-      padding: 8px 14px;
-      background-color: #e9c46a;
-      color: #4e342e;
-      border-radius: 6px;
-      text-decoration: none;
-    }
   </style>
 </head>
 <body>
@@ -187,7 +166,7 @@
       <a href="post_create.php">✏️ 撰寫文章</a>
       <a href="search.php">🔍 搜尋</a>
       <a href="profile.php">👤 個人檔案</a>
-      <a href="set_goal.php">🎯 學習目標</a>
+      <a href="set_goal.php">🎯 學習目標</a> <!-- 如不再需要，這行也可刪除 -->
     </div>
   </div>
 </header>
@@ -223,34 +202,12 @@
       </form>
       <p>💬 留言：很有共鳴！我也是剛轉來～</p>
     </div>
-
-    <!-- 🌐 尋找學伴 -->
-    <div class="section">
-      <h3>🤝 尋找學伴</h3>
-      <a href="search_partner.php">搜尋學伴</a>
-    </div>
-
-    <!-- 🎯 設定學習目標 -->
-    <div class="section">
-      <h3>🎯 設定學習目標</h3>
-      <a href="set_goal.php">設定學習目標</a>
-    </div>
   </div>
 
   <div class="sidebar">
     <div class="card">
       <h4>📝 撰寫文章</h4>
       <a href="post_create.php">前往發表</a>
-    </div>
-
-    <div class="card">
-      <h4>🤝 尋找學伴</h4>
-      <a href="search_partner.php">搜尋學伴</a>
-    </div>
-
-    <div class="card">
-      <h4>🎯 學習目標</h4>
-      <a href="set_goal.php">設定目標</a>
     </div>
   </div>
 </div>
