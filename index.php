@@ -1,3 +1,28 @@
+<?php
+session_start();
+
+// 檢查是否已登入
+if (!isset($_SESSION['user'])) {
+    die("請先登入才能查看文章或留言");
+}
+
+// 資料庫連線設定
+$servername = "localhost";
+$username = "root";
+$password = "";
+$dbname = "sa_account";
+
+// 建立連線
+$conn = new mysqli($servername, $username, $password, $dbname);
+if ($conn->connect_error) {
+    die("連線失敗：" . $conn->connect_error);
+}
+
+// 取得所有文章
+$sql = "SELECT * FROM post ORDER BY created_at DESC";
+$result = $conn->query($sql);
+?>
+
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
@@ -166,7 +191,6 @@
       <a href="post_create.php">✏️ 撰寫文章</a>
       <a href="search.php">🔍 搜尋</a>
       <a href="profile.php">👤 個人檔案</a>
-      <a href="set_goal.php">🎯 學習目標</a> <!-- 如不再需要，這行也可刪除 -->
     </div>
   </div>
 </header>
@@ -175,33 +199,71 @@
   <div class="main-content">
     <h2>📚 文章列表</h2>
 
-    <!-- 🔍 搜尋欄位 -->
     <form class="search-box" action="search.php" method="GET">
       <input type="text" name="keyword" placeholder="輸入關鍵字搜尋..." required>
       <button type="submit" class="btn btn-edit">🔍 搜尋</button>
     </form>
 
-    <!-- ➕ 發表文章 -->
     <a href="post_create.php" class="btn btn-edit btn-new-post">➕ 發表新文章</a>
 
-    <!-- 📝 單篇文章範例 -->
-    <div class="article">
-      <h3>轉學經驗分享</h3>
-      <p>剛轉學的那一年真的有點孤單，但我找到很多資源來幫助自己。</p>
-      <small>👤 作者：example@email.com</small>
-      <br><br>
-      <a href="post_edit.php?id=1" class="btn btn-edit">✏️ 修改</a>
-      <a href="post_delete.php?id=1" class="btn btn-delete">🗑️ 刪除</a>
-      <a href="like.php?id=1" class="btn btn-like">👍 按讚 (5)</a>
-      <a href="share.php?id=1" class="btn btn-share">🔗 分享</a>
-      <hr>
-      <form action="comment_add.php" method="POST">
-        <input type="hidden" name="post_id" value="1">
-        <input type="text" name="comment" placeholder="留言..." required style="width: 70%;">
-        <button class="btn btn-edit">留言</button>
-      </form>
-      <p>💬 留言：很有共鳴！我也是剛轉來～</p>
-    </div>
+    <?php
+    if ($result->num_rows > 0) {
+        while($row = $result->fetch_assoc()) {
+            echo "<div class='article'>";
+            echo "<h1>" . htmlspecialchars($row['title']) . "</h1>";
+            echo "<p><strong>" . nl2br(htmlspecialchars($row['content'])) . "</strong></p>";
+            echo "<p>需要學伴數量：" . htmlspecialchars($row['needed_partners']) . "</p>";
+            echo "<small>作者：" . htmlspecialchars($row['author']) . "</small><br>";
+            echo "<p><small>學系：" . htmlspecialchars($row['department']) . "</small></p>";
+            echo "<p><small>年級：" . htmlspecialchars($row['grade']) . "</small></p>";
+            echo "<p><small>發表時間：" . $row['created_at'] . "</small></p>";
+
+            if ($row['author'] === $_SESSION['user']) {
+                echo "<a href='post_edit.php?id=" . $row['id'] . "' class='btn btn-edit'>✏️ 修改</a>";
+                echo "<a href='post_delete.php?id=" . $row['id'] . "' class='btn btn-delete' onclick=\"return confirm('確定要刪除這篇文章嗎？');\">🗑️ 刪除</a>";
+            }
+
+            echo "<a href='like.php?id=" . $row['id'] . "' class='btn btn-like'>👍 按讚</a>";
+            echo "<a href='share.php?id=" . $row['id'] . "' class='btn btn-share'>🔗 分享</a>";
+            echo "<hr>";
+
+            echo "<form action='comment_add.php' method='POST'>";
+            echo "<input type='hidden' name='post_id' value='" . $row['id'] . "'>";
+            echo "<input type='text' name='comment' placeholder='留言...' required style='width: 70%;'>";
+            echo "<button class='btn btn-edit'>留言</button>";
+            echo "</form>";
+
+            $post_id = $row['id'];
+            $comment_sql = "SELECT * FROM comment WHERE post_id = $post_id ORDER BY created_at ASC";
+            $comment_result = $conn->query($comment_sql);
+
+            if ($comment_result->num_rows > 0) {
+                while ($comment_row = $comment_result->fetch_assoc()) {
+                    $comment_id = $comment_row['id'];
+                    $comment_email = $comment_row['email'];
+                    $comment_content = htmlspecialchars($comment_row['content']);
+
+                    echo "<p><strong>" . htmlspecialchars($comment_email) . "</strong><br>";
+                    echo $comment_content . "<br>";
+                    echo "<small>留言時間：" . $comment_row['created_at'] . "</small></p>";
+
+                    if ($comment_email === $_SESSION['user']) {
+                        echo "<form action='comment_delete.php' method='POST' style='display:inline;'>";
+                        echo "<input type='hidden' name='comment_id' value='" . $comment_id . "'>";
+                        echo "<button type='submit' class='btn btn-delete' onclick=\"return confirm('確定要刪除這則留言嗎？');\">🗑️刪除留言</button>";
+                        echo "</form>";
+                    }
+                }
+            } else {
+                echo "<p>你的留言區空無一人QQ。</p>";
+            }
+
+            echo "</div>";
+        }
+    } else {
+        echo "<p>目前沒有文章。</p>";
+    }
+    ?>
   </div>
 
   <div class="sidebar">
