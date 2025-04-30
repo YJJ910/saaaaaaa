@@ -1,70 +1,36 @@
-<!DOCTYPE html>
-<html lang="zh-TW">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>登入 - 轉學生交流平台</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body {
-            background: #f8f9fa;
-        }
-        body {
-            background: url('https://img.ltn.com.tw/Upload/news/600/2021/12/09/3762840_1_1.jpg') no-repeat center center fixed;
-            background-size: cover;
-        }
-        .login-container {
-            max-width: 400px;
-            margin: 80px auto;
-            padding: 30px;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-        }
-        .form-control {
-            border-radius: 5px;
-        }
-        .btn-login {
-            background: #007bff;
-            color: white;
-            font-weight: bold;
-        }
-        .btn-login:hover {
-            background: #0056b3;
-        }
-    </style>
-</head>
-<body>
+<?php
+session_start();
 
-<div class="container">
-    <div class="login-container">
-        <h2 class="text-center mb-4">🔐 會員登入</h2>
-        
-        <?php if (!empty($errorMessage)): ?>
-            <div class="alert alert-danger text-center">
-                <?= $errorMessage ?>
-            </div>
-        <?php endif; ?>
+// 取得 POST 的帳號密碼
+$email = $_POST["email"] ?? '';
+$password = $_POST["password"] ?? '';
 
-        <form method="POST">
-            <div class="mb-3">
-                <label for="email" class="form-label">電子郵件</label>
-                <input type="email" class="form-control" name="email" id="email" required placeholder="請輸入 Email">
-            </div>
+// 連接資料庫（sa_account）
+$link = mysqli_connect('localhost', 'root', '', 'sa_account');
 
-            <div class="mb-3">
-                <label for="password" class="form-label">密碼</label>
-                <input type="password" class="form-control" name="password" id="password" required placeholder="請輸入密碼">
-            </div>
+if (!$link) {
+    die("資料庫連線失敗：" . mysqli_connect_error());
+}
 
-            <button type="submit" class="btn btn-login w-100">登入</button>
-        </form>
+// 查詢是否有符合的帳號密碼
+$sql = "SELECT * FROM account WHERE email='$email' AND password='$password'";
+$result = mysqli_query($link, $sql);
 
-        <p class="text-center mt-3">
-            還沒有帳號？ <a href="註冊.php">註冊</a>
-        </p>
-    </div>
-</div>
+// 如果找到帳號，就登入成功
+if ($record = mysqli_fetch_assoc($result)) {
+    $_SESSION['user'] = $record['email'];
+    $_SESSION['user_id'] = $record['id'];
 
-</body>
-</html>
+    echo "<script>
+        alert('登入成功');
+        window.location.href = 'index.php';
+    </script>";
+} else {
+    echo "<script>
+        alert('登入失敗');
+        window.location.href = 'login.php';
+    </script>";
+}
+
+mysqli_close($link);
+?>
