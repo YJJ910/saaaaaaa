@@ -190,7 +190,8 @@ $result = $conn->query($sql);
     <div class="dropdown-content">
       <a href="post_create.php">✏️ 撰寫文章</a>
       <a href="search.php">🔍 搜尋</a>
-      <a href="profile.php">👤 個人檔案</a>
+      <a href="個人資料.php">👤 個人檔案</a>
+      <a href="logout.php">🚪 登出</a>
     </div>
   </div>
 </header>
@@ -223,7 +224,21 @@ $result = $conn->query($sql);
                 echo "<a href='post_delete.php?id=" . $row['id'] . "' class='btn btn-delete' onclick=\"return confirm('確定要刪除這篇文章嗎？');\">🗑️ 刪除</a>";
             }
 
-            echo "<a href='like.php?id=" . $row['id'] . "' class='btn btn-like'>👍 按讚</a>";
+            // 查詢按讚數
+            $post_id = $row['id'];
+            $like_count_sql = "SELECT COUNT(*) AS cnt FROM likes WHERE post_id = $post_id";
+            $like_result = $conn->query($like_count_sql);
+            $like_count = $like_result->fetch_assoc()['cnt'] ?? 0;
+
+            // 是否已按讚
+            $liked_sql = "SELECT 1 FROM likes WHERE post_id = $post_id AND user_email = '" . $_SESSION['user'] . "'";
+            $liked_result = $conn->query($liked_sql);
+            $liked = ($liked_result->num_rows > 0);
+
+            // 按鈕文字
+            $btn_text = $liked ? "💔 取消讚" : "👍 按讚";
+            echo "<a href='like_toggle.php?id=$post_id' class='btn btn-like'>{$btn_text} ({$like_count})</a>";
+
             echo "<a href='share.php?id=" . $row['id'] . "' class='btn btn-share'>🔗 分享</a>";
             echo "<hr>";
 
@@ -286,4 +301,41 @@ $result = $conn->query($sql);
 </div>
 
 </body>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const buttons = document.querySelectorAll(".like-btn");
+
+    buttons.forEach(button => {
+        button.addEventListener("click", function () {
+            const postId = this.dataset.postId;
+            const liked = this.dataset.liked === "1";
+            const btn = this;
+            const countSpan = btn.querySelector(".like-count");
+
+            // 建立 AJAX 請求
+            const xhr = new XMLHttpRequest();
+            xhr.open("POST", "like_toggle.php", true);
+            xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+
+            xhr.onload = function () {
+                if (xhr.status === 200) {
+                    const response = xhr.responseText.trim();
+                    let count = parseInt(countSpan.textContent);
+
+                    if (response === "liked") {
+                        btn.innerHTML = `💔 取消讚 (<span class="like-count">${count + 1}</span>)`;
+                        btn.dataset.liked = "1";
+                    } else if (response === "unliked") {
+                        btn.innerHTML = `👍 按讚 (<span class="like-count">${count - 1}</span>)`;
+                        btn.dataset.liked = "0";
+                    }
+                }
+            };
+
+            xhr.send("post_id=" + encodeURIComponent(postId));
+        });
+    });
+});
+</script>
+
 </html>
