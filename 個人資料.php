@@ -1,3 +1,34 @@
+<?php
+session_start();
+if (!isset($_SESSION['user'])) {
+    header("Location: login.php");
+    exit;
+}
+
+$email = $_SESSION['user'];
+
+try {
+    $pdo = new PDO("mysql:host=localhost;dbname=sa_account;charset=utf8", "root", "");
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+    // 抓取使用者資訊
+    $stmt = $pdo->prepare("SELECT nickname, email, bio FROM account WHERE email = :email");
+    $stmt->execute([':email' => $email]);
+    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+    if (!$user) {
+        die("使用者不存在");
+    }
+
+    // 抓取該使用者的貼文（根據 email 查詢）
+    $postStmt = $pdo->prepare("SELECT id, title, content, created_at FROM post WHERE author = :email ORDER BY created_at DESC");
+    $postStmt->execute([':email' => $email]);
+    $posts = $postStmt->fetchAll(PDO::FETCH_ASSOC);
+
+} catch (PDOException $e) {
+    die("資料庫錯誤：" . $e->getMessage());
+}
+?>
+
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
@@ -58,37 +89,27 @@
 </head>
 <body>
 <div class="container">
-
   <div class="profile-header">
-    <h1>小明</h1>
-    <p>📧 Email：xiaoming@example.com</p>
-    <p>👋 自我介紹：大家好，我是小明，一位熱愛學習與分享的資工系學生，喜歡開發網頁應用和學習新技術。</p>
+    <h1><?= htmlspecialchars($user['nickname']) ?></h1>
+    <p><?= htmlspecialchars($user['email']) ?></p>
+    <p><?= nl2br(htmlspecialchars($user['bio'])) ?></p>
     <a href="編輯個人檔案.php" class="btn btn-edit">✏️ 編輯個人檔案</a>
   </div>
 
   <div class="post-list">
-    <h2>📝 我發過的貼文</h2>
-
-    <div class="post">
-      <h3>尋找一起練習 Leetcode 的夥伴</h3>
-      <p>內容：希望每週能一起討論 2~3 題，有興趣的請留言～</p>
-      <small>發表時間：2025-04-01</small>
-    </div>
-
-    <div class="post">
-      <h3>需要統計學學伴</h3>
-      <p>內容：這學期統計學進度好快，有沒有人想一起複習的？</p>
-      <small>發表時間：2025-03-25</small>
-    </div>
-
-    <div class="post">
-      <h3>想學 Vue.js，有人要組讀書會嗎？</h3>
-      <p>內容：初學者想從 Vue 3 開始學習，可以一起看文件、做小專案～</p>
-      <small>發表時間：2025-03-20</small>
-    </div>
-
+    <h2>📚 我的貼文</h2>
+    <?php if (count($posts) > 0): ?>
+      <?php foreach ($posts as $post): ?>
+        <div class="post">
+          <h3><?= htmlspecialchars($post['title']) ?></h3>
+          <p><?= nl2br(htmlspecialchars($post['content'])) ?></p>
+          <small>發佈於：<?= htmlspecialchars($post['created_at']) ?></small>
+        </div>
+      <?php endforeach; ?>
+    <?php else: ?>
+      <p>尚未發佈任何貼文。</p>
+    <?php endif; ?>
   </div>
-
 </div>
 </body>
 </html>

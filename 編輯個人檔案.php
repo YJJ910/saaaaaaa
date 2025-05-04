@@ -1,99 +1,122 @@
+<?php
+session_start();
+if (!isset($_SESSION['user'])) {
+    header("Location: login.php");
+    exit;
+}
+
+$email = $_SESSION['user']; // 使用 session 中的 user
+
+// 從資料庫取得使用者暱稱與自我介紹
+try {
+    $pdo = new PDO("mysql:host=localhost;dbname=sa_account;charset=utf8", "root", "");
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+    $stmt = $pdo->prepare("SELECT nickname, email, bio FROM account WHERE email = :email");
+    $stmt->execute([':email' => $email]);
+    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$user) {
+        die("使用者不存在");
+    }
+
+} catch (PDOException $e) {
+    die("資料庫連線失敗：" . $e->getMessage());
+}
+?>
+
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
   <title>編輯個人檔案</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
     body {
       background: #f0ede5;
-      font-family: sans-serif;
+      font-family: 'Arial', sans-serif;
       padding: 20px;
     }
     .container {
-      max-width: 800px;
+      max-width: 600px;
       margin: auto;
       background: #fff;
-      padding: 20px;
+      padding: 30px;
       border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     }
-    h2 {
+    .profile-header {
       text-align: center;
       margin-bottom: 30px;
     }
-    label {
-      display: block;
-      margin-top: 15px;
+    .profile-header h2 {
+      margin: 10px 0;
+      color: #333;
+    }
+    .form-label {
       font-weight: bold;
+      color: #555;
     }
-    input[type="text"],
-    input[type="email"],
-    textarea {
+    .form-control {
+      border-radius: 8px;
+      box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px;
+    }
+    .form-control:focus {
+      border-color: #28a745;
+      box-shadow: 0 0 5px rgba(40, 167, 69, 0.5);
+    }
+    textarea.form-control {
+      resize: vertical;
+      min-height: 150px;
+    }
+    .btn-submit {
       width: 100%;
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      margin-top: 5px;
-    }
-    .btn {
-      padding: 10px 20px;
-      border: none;
-      border-radius: 6px;
+      padding: 12px;
       background-color: #28a745;
       color: white;
-      cursor: pointer;
-      margin-top: 20px;
-    }
-    .post-list {
-      margin-top: 40px;
-    }
-    .post {
-      border: 1px solid #ddd;
-      padding: 15px;
-      margin-bottom: 15px;
+      font-weight: bold;
       border-radius: 8px;
+      border: none;
+      cursor: pointer;
     }
-    .post h3 {
-      margin: 0;
+    .btn-submit:hover {
+      background-color: #218838;
     }
-    .post small {
-      color: #888;
+    .text-center a {
+      color: #007bff;
+      text-decoration: none;
+    }
+    .text-center a:hover {
+      text-decoration: underline;
     }
   </style>
 </head>
 <body>
 <div class="container">
-  <h2>👤 編輯個人檔案</h2>
-
-  <form action="update_profile.php" method="POST">
-    <label for="nickname">暱稱</label>
-    <input type="text" id="nickname" name="nickname" value="小明" required>
-
-    <label for="email">Email</label>
-    <input type="email" id="email" name="email" value="xiaoming@example.com" required>
-
-    <label for="bio">自我介紹</label>
-    <textarea id="bio" name="bio" rows="4">大家好，我是小明，一位熱愛學習與分享的資工系學生，喜歡開發網頁應用和學習新技術。</textarea>
-
-    <button type="submit" class="btn">💾 儲存變更</button>
-  </form>
-
-  <div class="post-list">
-    <h2>📝 我發過的貼文</h2>
-
-    <div class="post">
-      <h3>尋找一起練習 Leetcode 的夥伴</h3>
-      <p>內容：希望每週能一起討論 2~3 題，有興趣的請留言～</p>
-      <small>發表時間：2025-04-01</small>
-    </div>
-
-    <div class="post">
-      <h3>需要統計學學伴</h3>
-      <p>內容：這學期統計學進度好快，有沒有人想一起複習的？</p>
-      <small>發表時間：2025-03-25</small>
-    </div>
-
+  <div class="profile-header">
+    <h2>👤 編輯個人檔案</h2>
   </div>
 
+  <form action="update_profile.php" method="POST">
+    <div class="mb-3">
+      <label for="nickname" class="form-label">暱稱</label>
+      <!-- 暱稱可以編輯 -->
+      <input type="text" id="nickname" name="nickname" class="form-control" value="<?= htmlspecialchars($user['nickname']) ?>" required>
+    </div>
+
+    <div class="mb-3">
+      <label for="email" class="form-label">Email</label>
+      <input type="email" id="email" name="email" class="form-control" value="<?= htmlspecialchars($user['email']) ?>" readonly>
+    </div>
+
+    <div class="mb-3">
+      <label for="bio" class="form-label">自我介紹</label>
+      <textarea id="bio" name="bio" class="form-control" rows="4"><?= htmlspecialchars($user['bio']) ?></textarea>
+    </div>
+
+    <button type="submit" class="btn-submit">💾 儲存變更</button>
+  </form>
 </div>
 </body>
 </html>

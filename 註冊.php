@@ -6,19 +6,21 @@ $successMessage = '';
 
 // 如果使用者送出表單
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $nickname = $_POST['nickname'] ?? '';
     $email = $_POST['email'] ?? '';
     $password = $_POST['password'] ?? '';
 
     // 簡單驗證
-    if (empty($email) || empty($password)) {
+    if (empty($nickname) || empty($email) || empty($password)) {
         $errorMessage = '請填寫所有欄位。';
     } else {
         try {
-            // 準備 SQL 插入語法（不使用密碼加密）
-            $stmt = $pdo->prepare("INSERT INTO account (email, password) VALUES (:email, :password)");
+            // 準備 SQL 插入語法（目前不加密密碼）
+            $stmt = $pdo->prepare("INSERT INTO account (nickname, email, password) VALUES (:nickname, :email, :password)");
             $stmt->execute([
+                ':nickname' => $nickname,
                 ':email' => $email,
-                ':password' => $password // 沒有加密直接存明文密碼
+                ':password' => $password
             ]);
 
             $successMessage = '註冊成功！';
@@ -81,6 +83,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php endif; ?>
 
         <form method="POST">
+
+            <div class="mb-3">
+                <label for="nickname" class="form-label">帳號暱稱</label>
+                <input type="text" class="form-control" name="nickname" id="nickname" required placeholder="請輸入暱稱">
+            </div>
+
             <div class="mb-3">
                 <label for="email" class="form-label">電子郵件</label>
                 <input type="email" class="form-control" name="email" id="email" required placeholder="請輸入 Email">
