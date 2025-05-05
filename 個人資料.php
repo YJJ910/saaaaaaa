@@ -11,15 +11,15 @@ try {
     $pdo = new PDO("mysql:host=localhost;dbname=sa_account;charset=utf8", "root", "");
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-    // 抓取使用者資訊
-    $stmt = $pdo->prepare("SELECT nickname, email, bio FROM account WHERE email = :email");
+    // 抓取使用者資訊（包含 skills 專業能力）
+    $stmt = $pdo->prepare("SELECT nickname, email, bio, skills FROM account WHERE email = :email");
     $stmt->execute([':email' => $email]);
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
     if (!$user) {
         die("使用者不存在");
     }
 
-    // 抓取該使用者的貼文（根據 email 查詢）
+    // 抓取該使用者的貼文
     $postStmt = $pdo->prepare("SELECT id, title, content, created_at FROM post WHERE author = :email ORDER BY created_at DESC");
     $postStmt->execute([':email' => $email]);
     $posts = $postStmt->fetchAll(PDO::FETCH_ASSOC);
@@ -56,6 +56,7 @@ try {
     }
     .profile-header p {
       color: #666;
+      margin: 5px 0;
     }
     .btn {
       padding: 6px 12px;
@@ -86,18 +87,18 @@ try {
       color: #888;
     }
     .back-button {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            padding: 5px 12px;
-            background-color: #ccc;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        .back-button:hover {
-            background-color: #bbb;
-        }
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      padding: 5px 12px;
+      background-color: #ccc;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .back-button:hover {
+      background-color: #bbb;
+    }
   </style>
 </head>
 <body>
@@ -105,8 +106,9 @@ try {
 <div class="container">
   <div class="profile-header">
     <h1><?= htmlspecialchars($user['nickname']) ?></h1>
-    <p><?= htmlspecialchars($user['email']) ?></p>
-    <p><?= nl2br(htmlspecialchars($user['bio'])) ?></p>
+    <p><strong></strong><?= htmlspecialchars($user['email']) ?></p>
+    <p><strong>自我介紹：</strong><br><?= nl2br(htmlspecialchars($user['bio'])) ?></p>
+    <p><strong>專業能力：</strong><br><?= nl2br(htmlspecialchars($user['skills'])) ?></p>
     <a href="編輯個人檔案.php" class="btn btn-edit">✏️ 編輯個人檔案</a>
   </div>
 

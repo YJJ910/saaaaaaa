@@ -7,12 +7,12 @@ if (!isset($_SESSION['user'])) {
 
 $email = $_SESSION['user']; // 使用 session 中的 user
 
-// 從資料庫取得使用者暱稱與自我介紹
+// 從資料庫取得使用者資料
 try {
     $pdo = new PDO("mysql:host=localhost;dbname=sa_account;charset=utf8", "root", "");
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-    $stmt = $pdo->prepare("SELECT nickname, email, bio FROM account WHERE email = :email");
+    $stmt = $pdo->prepare("SELECT nickname, email, bio, skills FROM account WHERE email = :email");
     $stmt->execute([':email' => $email]);
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -91,18 +91,18 @@ try {
       text-decoration: underline;
     }
     .back-button {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            padding: 5px 12px;
-            background-color: #ccc;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        .back-button:hover {
-            background-color: #bbb;
-        }
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      padding: 5px 12px;
+      background-color: #ccc;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .back-button:hover {
+      background-color: #bbb;
+    }
   </style>
 </head>
 <body>
@@ -115,7 +115,6 @@ try {
   <form action="update_profile.php" method="POST">
     <div class="mb-3">
       <label for="nickname" class="form-label">暱稱</label>
-      <!-- 暱稱可以編輯 -->
       <input type="text" id="nickname" name="nickname" class="form-control" value="<?= htmlspecialchars($user['nickname']) ?>" required>
     </div>
 
@@ -126,7 +125,12 @@ try {
 
     <div class="mb-3">
       <label for="bio" class="form-label">自我介紹</label>
-      <textarea id="bio" name="bio" class="form-control" rows="4"><?= htmlspecialchars($user['bio']) ?></textarea>
+      <textarea id="bio" name="bio" class="form-control" rows="4" placeholder="請簡單介紹自己，例如興趣、目前在學的科系或想找什麼樣的學伴"><?= htmlspecialchars($user['bio']) ?></textarea>
+    </div>
+
+    <div class="mb-3">
+      <label for="skills" class="form-label">專業能力</label>
+      <textarea id="skills" name="skills" class="form-control" rows="3" placeholder="請簡述你的專業能力:如多益分數、是否通過機測?、日文程度"><?= htmlspecialchars($user['skills']) ?></textarea>
     </div>
 
     <button type="submit" class="btn-submit">💾 儲存變更</button>
