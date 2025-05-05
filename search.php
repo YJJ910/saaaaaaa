@@ -1,3 +1,31 @@
+<?php
+session_start();
+
+if (!isset($_SESSION['user'])) {
+    die("請先登入才能搜尋文章");
+}
+
+$servername = "localhost";
+$username = "root";
+$password = "";
+$dbname = "sa_account";
+
+$conn = new mysqli($servername, $username, $password, $dbname);
+if ($conn->connect_error) {
+    die("連線失敗：" . $conn->connect_error);
+}
+
+$keyword = isset($_GET['keyword']) ? trim($_GET['keyword']) : '';
+$escaped_keyword = $conn->real_escape_string($keyword);
+
+$sql = "SELECT * FROM post 
+        WHERE title LIKE '%$escaped_keyword%' 
+           OR content LIKE '%$escaped_keyword%' 
+        ORDER BY created_at DESC";
+
+$result = $conn->query($sql);
+?>
+
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
@@ -38,31 +66,41 @@
     </style>
 </head>
 <body>
-    <div class="container">
-        <?php
-            // 取得關鍵字（從網址參數）
-            $keyword = isset($_GET['keyword']) ? htmlspecialchars($_GET['keyword']) : '';
-        ?>
-        <h2>🔍 搜尋結果：<em><?= $keyword ?></em></h2>
+<div class="container">
+    <h2>🔍 搜尋結果：<em><?= htmlspecialchars($keyword) ?></em></h2>
 
-        <!-- ✅ 模擬一筆符合的文章 -->
-        <?php if ($keyword === '轉學'): ?>
+    <?php if ($result->num_rows > 0): ?>
+        <?php while ($row = $result->fetch_assoc()): ?>
             <div class="article">
-                <h3>轉學經驗分享</h3>
-                <p>剛轉學的那一年真的有點孤單，但我找到很多資源來幫助自己。</p>
-                <small>作者：example@email.com</small>
-                <br><br>
-                <a href="post_edit.php?id=1" class="btn btn-edit">✏️ 修改</a>
-                <a href="post_delete.php?id=1" class="btn btn-delete">🗑️ 刪除</a>
-                <a href="like.php?id=1" class="btn btn-like">👍 按讚 (5)</a>
-                <a href="share.php?id=1" class="btn btn-share">🔗 分享</a>
-            </div>
-        <?php else: ?>
-            <!-- ❌ 找不到任何符合 -->
-            <p>❗ 找不到與「<strong><?= $keyword ?></strong>」相關的文章。</p>
-        <?php endif; ?>
+                <h3><?= htmlspecialchars($row['title']) ?></h3>
+                <p><?= nl2br(htmlspecialchars($row['content'])) ?></p>
+                <small>作者：<?= htmlspecialchars($row['author']) ?></small><br><br>
 
-        <a href="index.php" class="btn btn-edit">⬅ 返回首頁</a>
-    </div>
+                <?php if ($row['author'] === $_SESSION['user']): ?>
+                    <a href="post_edit.php?id=<?= $row['id'] ?>" class="btn btn-edit">✏️ 修改</a>
+                    <a href="post_delete.php?id=<?= $row['id'] ?>" class="btn btn-delete" onclick="return confirm('確定要刪除嗎？')">🗑️ 刪除</a>
+                <?php endif; ?>
+
+                <?php
+                    $post_id = $row['id'];
+                    $like_sql = "SELECT COUNT(*) AS cnt FROM likes WHERE post_id = $post_id";
+                    $like_result = $conn->query($like_sql);
+                    $like_count = $like_result->fetch_assoc()['cnt'] ?? 0;
+
+                    $liked_sql = "SELECT 1 FROM likes WHERE post_id = $post_id AND user_email = '" . $_SESSION['user'] . "'";
+                    $liked_result = $conn->query($liked_sql);
+                    $liked = ($liked_result->num_rows > 0);
+
+                    $btn_text = $liked ? "💔 取消讚" : "👍 按讚";
+                ?>
+                <a href="like_toggle.php?id=<?= $post_id ?>" class="btn btn-like"><?= $btn_text ?> (<?= $like_count ?>)</a>
+            </div>
+        <?php endwhile; ?>
+    <?php else: ?>
+        <p>❗ 找不到與「<strong><?= htmlspecialchars($keyword) ?></strong>」相關的文章。</p>
+    <?php endif; ?>
+
+    <a href="index.php" class="btn btn-edit">⬅ 返回首頁</a>
+</div>
 </body>
 </html>

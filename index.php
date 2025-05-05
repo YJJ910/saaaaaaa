@@ -239,7 +239,6 @@ $result = $conn->query($sql);
             $btn_text = $liked ? "💔 取消讚" : "👍 按讚";
             echo "<a href='like_toggle.php?id=$post_id' class='btn btn-like'>{$btn_text} ({$like_count})</a>";
 
-            echo "<a href='share.php?id=" . $row['id'] . "' class='btn btn-share'>🔗 分享</a>";
             echo "<hr>";
 
             echo "<form action='comment_add.php' method='POST'>";
