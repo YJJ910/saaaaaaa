@@ -85,9 +85,23 @@ try {
     .post small {
       color: #888;
     }
+    .back-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 5px 12px;
+            background-color: #ccc;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .back-button:hover {
+            background-color: #bbb;
+        }
   </style>
 </head>
 <body>
+<button class="back-button" onclick="history.back()">← 返回</button>
 <div class="container">
   <div class="profile-header">
     <h1><?= htmlspecialchars($user['nickname']) ?></h1>

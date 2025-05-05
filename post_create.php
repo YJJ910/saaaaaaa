@@ -14,10 +14,41 @@ $user_email = $_SESSION['user'];
 <head>
     <meta charset="UTF-8">
     <title>發表文章</title>
+    <style>
+        body {
+            background: #f0ede5;
+            font-family: sans-serif;
+            padding: 20px;
+        }
+        .post-container {
+            max-width: 650px;
+            margin: auto;
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            position: relative; /* 設定相對定位 */
+        }
+        .back-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 5px 12px;
+            background-color: #ccc;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .back-button:hover {
+            background-color: #bbb;
+        }
+    </style>
 </head>
+</head>
+
 <body style="background:#f0ede5; font-family:sans-serif; padding:20px;">
     <div style="max-width:650px; margin:auto; background:white; padding:30px; border-radius:20px;">
         <h2>📝 發表文章</h2>
+        <button class="back-button" onclick="history.back()">← 返回</button>
         <form action="post_submit.php" method="POST">
             <input type="text" name="title" placeholder="標題" required style="width:95%;padding:10px;"><br><br>
 
