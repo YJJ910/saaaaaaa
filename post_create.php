@@ -1,3 +1,14 @@
+<?php
+session_start();
+
+// 檢查是否已登入
+if (!isset($_SESSION['user'])) {
+    die("請先登入才能發表文章");
+}
+
+$user_email = $_SESSION['user'];
+?>
+
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
@@ -32,15 +43,18 @@
         }
     </style>
 </head>
-<body>
-    <div class="post-container">
-        <button class="back-button" onclick="history.back()">← 返回</button>
+</head>
 
+<body style="background:#f0ede5; font-family:sans-serif; padding:20px;">
+    <div style="max-width:650px; margin:auto; background:white; padding:30px; border-radius:20px;">
         <h2>📝 發表文章</h2>
-        <form action="post_submit.php" method="POST" enctype="multipart/form-data">
+        <button class="back-button" onclick="history.back()">← 返回</button>
+        <form action="post_submit.php" method="POST">
             <input type="text" name="title" placeholder="標題" required style="width:95%;padding:10px;"><br><br>
 
-            <input type="text" name="author" placeholder="發文者（姓名或Email）" required style="width:95%;padding:10px;"><br><br>
+            <!-- 顯示 email 並自動填入 -->
+            <input type="text" name="author_display" value="<?php echo htmlspecialchars($user_email); ?>" readonly style="width:95%;padding:10px; background:#eee;"><br><br>
+            <input type="hidden" name="author" value="<?php echo htmlspecialchars($user_email); ?>">
 
             <input type="text" name="department" placeholder="科系（如：資訊工程系）" required style="width:95%;padding:10px;"><br><br>
 
@@ -50,13 +64,7 @@
 
             <textarea name="content" placeholder="內容（分享經驗、問題或資源）" rows="6" required style="width:95%;padding:10px;"></textarea><br><br>
 
-            <label>上傳圖片或檔案：</label><br>
-            <input type="file" name="attachment" accept="image/*,.pdf,.doc,.docx" style="margin-top:5px;"><br><br>
-
-            <label>
-                <input type="checkbox" name="looking_for_partner" value="1">
-                是否尋找學伴
-            </label><br><br>
+            <input type="number" id="needed_partners" name="needed_partners" placeholder="需要學伴數量：" min="0" style="width:95%;padding:10px;"><br><br>
 
             <button type="submit" style="padding:10px 20px;">發表</button>
         </form>
