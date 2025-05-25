@@ -63,12 +63,25 @@ $result = $conn->query($sql);
         .btn-delete { background: #dc3545; color: white; }
         .btn-like { background: #ffc107; color: black; }
         .btn-share { background: #17a2b8; color: white; }
+        .back-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 5px 12px;
+            background-color: #ccc;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .back-button:hover {
+            background-color: #bbb;
+        }
     </style>
 </head>
 <body>
 <div class="container">
     <h2>🔍 搜尋結果：<em><?= htmlspecialchars($keyword) ?></em></h2>
-
+    <button class="back-button" onclick="history.back()">← 返回</button>
     <?php if ($result->num_rows > 0): ?>
         <?php while ($row = $result->fetch_assoc()): ?>
             <div class="article">
