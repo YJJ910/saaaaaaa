@@ -72,7 +72,6 @@ function display_comments($conn, $post_id, $parent_id = null, $level = 0) {
           display_comments($conn, $post_id, $comment_id, $level + 1);
       }
   } else if ($level === 0) {
-      // 如果是最外層且沒有留言，顯示提示
       echo "<p>你的留言區空無一人QQ。</p>";
   }
 }
@@ -235,6 +234,14 @@ $result = $conn->query($sql);
       border-radius: 5px;
       border: 1px solid #ccc;
     }
+
+    a.author-link {
+      color: #1e88e5;
+      text-decoration: none;
+    }
+    a.author-link:hover {
+      text-decoration: underline;
+    }
   </style>
   <script>
     function toggleReplyBox(id) {
@@ -285,7 +292,10 @@ $result = $conn->query($sql);
             echo "<h1>" . htmlspecialchars($row['title']) . "</h1>";
             echo "<p><strong>" . nl2br(htmlspecialchars($row['content'])) . "</strong></p>";
             echo "<p>需要學伴數量：" . htmlspecialchars($row['needed_partners']) . "</p>";
-            echo "<small>作者：" . htmlspecialchars($row['author']) . "</small><br>";
+
+            $author = htmlspecialchars($row['author']);
+            echo "<small>作者：<a href='個人資料.php?email={$author}' class='author-link'>{$author}</a></small><br>";
+
             echo "<p><small>學系：" . htmlspecialchars($row['department']) . "</small></p>";
             echo "<p><small>年級：" . htmlspecialchars($row['grade']) . "</small></p>";
             echo "<p><small>發表時間：" . $row['created_at'] . "</small></p>";
@@ -313,7 +323,6 @@ $result = $conn->query($sql);
             echo "<button>留言</button>";
             echo "</form>";
 
-            // 顯示留言（含回覆）
             display_comments($conn, $post_id);
 
             echo "</div>";

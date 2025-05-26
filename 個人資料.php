@@ -5,15 +5,16 @@ if (!isset($_SESSION['user'])) {
     exit;
 }
 
-$email = $_SESSION['user'];
+$login_email = $_SESSION['user']; // 登入者
+$target_email = isset($_GET['email']) ? $_GET['email'] : $login_email;
 
 try {
     $pdo = new PDO("mysql:host=localhost;dbname=sa_account;charset=utf8", "root", "");
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-    // 抓取使用者資訊（包含 skills 專業能力）
+    // 抓取個人資料
     $stmt = $pdo->prepare("SELECT nickname, email, bio, skills FROM account WHERE email = :email");
-    $stmt->execute([':email' => $email]);
+    $stmt->execute([':email' => $target_email]);
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
     if (!$user) {
         die("使用者不存在");
@@ -21,7 +22,7 @@ try {
 
     // 抓取該使用者的貼文
     $postStmt = $pdo->prepare("SELECT id, title, content, created_at FROM post WHERE author = :email ORDER BY created_at DESC");
-    $postStmt->execute([':email' => $email]);
+    $postStmt->execute([':email' => $target_email]);
     $posts = $postStmt->fetchAll(PDO::FETCH_ASSOC);
 
 } catch (PDOException $e) {
@@ -106,14 +107,18 @@ try {
 <div class="container">
   <div class="profile-header">
     <h1><?= htmlspecialchars($user['nickname']) ?></h1>
-    <p><strong></strong><?= htmlspecialchars($user['email']) ?></p>
+    <p><?= htmlspecialchars($user['email']) ?></p>
     <p><strong>自我介紹：</strong><br><?= nl2br(htmlspecialchars($user['bio'])) ?></p>
     <p><strong>專業能力：</strong><br><?= nl2br(htmlspecialchars($user['skills'])) ?></p>
-    <a href="編輯個人檔案.php" class="btn btn-edit">✏️ 編輯個人檔案</a>
+    
+    <!-- 僅當登入者正在看自己的個人資料時，才顯示編輯按鈕 -->
+    <?php if ($login_email === $user['email']): ?>
+      <a href="編輯個人檔案.php" class="btn btn-edit">✏️ 編輯個人檔案</a>
+    <?php endif; ?>
   </div>
 
   <div class="post-list">
-    <h2>📚 我的貼文</h2>
+    <h2>📚 <?= $login_email === $user['email'] ? '我的貼文' : 'TA的貼文' ?></h2>
     <?php if (count($posts) > 0): ?>
       <?php foreach ($posts as $post): ?>
         <div class="post">
@@ -129,3 +134,4 @@ try {
 </div>
 </body>
 </html>
+
