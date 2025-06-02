@@ -1,6 +1,6 @@
 <?php
 $host = 'localhost';
-$dbname = 'sa_post';     // 資料庫名稱
+$dbname = 'sa_post';   
 $username = 'root';
 $password = '';
 

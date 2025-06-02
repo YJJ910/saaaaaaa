@@ -5,7 +5,7 @@ if (!isset($_SESSION['user'])) {
     exit;
 }
 
-$email = $_SESSION['user']; // 從 session 取得 email
+$email = $_SESSION['user']; 
 $nickname = $_POST['nickname'] ?? '';
 $bio = $_POST['bio'] ?? '';
 $skills = $_POST['skills'] ?? '';
@@ -22,7 +22,6 @@ try {
         ':email' => $email
     ]);
 
-    // 更新成功，導回個人資料頁或顯示成功訊息
     header("Location: 個人資料.php");
     exit;
 

@@ -5,14 +5,14 @@ if (!isset($_SESSION['user'])) {
     exit;
 }
 
-$login_email = $_SESSION['user']; // 登入者
+$login_email = $_SESSION['user']; 
 $target_email = isset($_GET['email']) ? $_GET['email'] : $login_email;
 
 try {
     $pdo = new PDO("mysql:host=localhost;dbname=sa_account;charset=utf8", "root", "");
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-    // 抓取個人資料
+    
     $stmt = $pdo->prepare("SELECT nickname, email, bio, skills FROM account WHERE email = :email");
     $stmt->execute([':email' => $target_email]);
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -20,7 +20,7 @@ try {
         die("使用者不存在");
     }
 
-    // 抓取該使用者的貼文
+    
     $postStmt = $pdo->prepare("SELECT id, title, content, created_at FROM post WHERE author = :email ORDER BY created_at DESC");
     $postStmt->execute([':email' => $target_email]);
     $posts = $postStmt->fetchAll(PDO::FETCH_ASSOC);
@@ -111,7 +111,7 @@ try {
     <p><strong>自我介紹：</strong><br><?= nl2br(htmlspecialchars($user['bio'])) ?></p>
     <p><strong>專業能力：</strong><br><?= nl2br(htmlspecialchars($user['skills'])) ?></p>
     
-    <!-- 僅當登入者正在看自己的個人資料時，才顯示編輯按鈕 -->
+
     <?php if ($login_email === $user['email']): ?>
       <a href="編輯個人檔案.php" class="btn btn-edit">✏️ 編輯個人檔案</a>
     <?php endif; ?>

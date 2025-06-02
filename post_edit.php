@@ -26,7 +26,7 @@ if (!$post) {
     die("找不到貼文");
 }
 
-// 確保只有作者本人能編輯
+
 if ($_SESSION['user'] !== $post['author']) {
     die("你沒有權限編輯這篇貼文");
 }
@@ -62,7 +62,6 @@ if ($_SESSION['user'] !== $post['author']) {
 
             
             <input type="text" name="title" value="<?php echo htmlspecialchars($post['title']); ?>" required style="width:95%;padding:10px;"><br><br>
-            <!-- 顯示作者並自動填入，且設為只讀 -->
             <input type="text" name="author_display" value="<?php echo htmlspecialchars($post['author']); ?>" readonly style="width:95%;padding:10px; background:#eee;"><br><br>
             <input type="hidden" name="author" value="<?php echo htmlspecialchars($post['author']); ?>">
 

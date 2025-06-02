@@ -14,7 +14,6 @@ if ($conn->connect_error) {
     die("連接失敗: " . $conn->connect_error);
 }
 
-// 取得資料
 $id = $_POST['id'];
 $title = $_POST['title'];
 $department = $_POST['department'];
@@ -23,7 +22,6 @@ $goal = $_POST['goal'];
 $content = $_POST['content'];
 $needed_partners = $_POST['needed_partners'];
 
-// 驗證是否為原作者
 $check = $conn->prepare("SELECT author FROM post WHERE id = ?");
 $check->bind_param("i", $id);
 $check->execute();
@@ -34,7 +32,6 @@ if (!$row || $row['author'] !== $_SESSION['user']) {
     die("你沒有權限修改這篇貼文");
 }
 
-// 更新貼文並同步更新發文時間
 $sql = "UPDATE post 
         SET title=?, department=?, grade=?, goal=?, content=?, needed_partners=?, created_at=NOW() 
         WHERE id=?";

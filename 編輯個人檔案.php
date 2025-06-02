@@ -5,9 +5,9 @@ if (!isset($_SESSION['user'])) {
     exit;
 }
 
-$email = $_SESSION['user']; // 使用 session 中的 user
+$email = $_SESSION['user']; 
 
-// 從資料庫取得使用者資料
+
 try {
     $pdo = new PDO("mysql:host=localhost;dbname=sa_account;charset=utf8", "root", "");
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);

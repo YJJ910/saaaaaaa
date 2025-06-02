@@ -1,21 +1,21 @@
 <?php
-require_once 'db_account.php'; // 引入 sa_account 資料庫連線
+require_once 'db_account.php'; 
 
 $errorMessage = '';
 $successMessage = '';
 
-// 如果使用者送出表單
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $nickname = $_POST['nickname'] ?? '';
     $email = $_POST['email'] ?? '';
     $password = $_POST['password'] ?? '';
 
-    // 簡單驗證
+
     if (empty($nickname) || empty($email) || empty($password)) {
         $errorMessage = '請填寫所有欄位。';
     } else {
         try {
-            // 準備 SQL 插入語法（目前不加密密碼）
+
             $stmt = $pdo->prepare("INSERT INTO account (nickname, email, password) VALUES (:nickname, :email, :password)");
             $stmt->execute([
                 ':nickname' => $nickname,

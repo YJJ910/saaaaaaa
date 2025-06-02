@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-// 檢查是否已登入
+
 if (!isset($_SESSION['user'])) {
     die("請先登入才能留言");
 }
@@ -20,10 +20,9 @@ if ($conn->connect_error) {
     die("連線失敗：" . $conn->connect_error);
 }
 
-// 如果 parent_id 是空字串，設為 NULL
+
 $parent_id = ($parent_id === '' || $parent_id === null) ? null : (int)$parent_id;
 
-// 插入留言或回覆
 $sql = "INSERT INTO comment (post_id, email, content, parent_id, created_at) VALUES (?, ?, ?, ?, NOW())";
 $stmt = $conn->prepare($sql);
 if (!$stmt) {

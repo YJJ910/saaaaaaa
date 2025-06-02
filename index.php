@@ -14,10 +14,8 @@ if ($conn->connect_error) {
     die("連線失敗：" . $conn->connect_error);
 }
 
-// 取得排序參數
 $sort = $_GET['sort'] ?? 'newest';
 
-// 根據排序條件組合 SQL
 switch ($sort) {
     case 'oldest':
         $sql = "SELECT post.*, 
@@ -316,7 +314,7 @@ $result = $conn->query($sql);
             echo "<a href='like_toggle.php?id=$post_id' class='btn btn-like'>{$btn_text} ({$like_count})</a>";
             echo "<hr>";
 
-            // 留言表單
+
             echo "<form action='comment_add.php' method='POST'>";
             echo "<input type='hidden' name='post_id' value='" . $row['id'] . "'>";
             echo "<input type='text' name='comment' placeholder='留言...' required style='width: 70%;'>";

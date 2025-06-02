@@ -1,7 +1,6 @@
 <?php
 session_start();
 
-// 檢查是否已登入
 if (!isset($_SESSION['user'])) {
     die("請先登入才能發表文章");
 }
@@ -26,7 +25,7 @@ $user_email = $_SESSION['user'];
             background: white;
             padding: 30px;
             border-radius: 20px;
-            position: relative; /* 設定相對定位 */
+            position: relative; 
         }
         .back-button {
             position: absolute;
@@ -52,7 +51,6 @@ $user_email = $_SESSION['user'];
         <form action="post_submit.php" method="POST">
             <input type="text" name="title" placeholder="標題" required style="width:95%;padding:10px;"><br><br>
 
-            <!-- 顯示 email 並自動填入 -->
             <input type="text" name="author_display" value="<?php echo htmlspecialchars($user_email); ?>" readonly style="width:95%;padding:10px; background:#eee;"><br><br>
             <input type="hidden" name="author" value="<?php echo htmlspecialchars($user_email); ?>">
 
