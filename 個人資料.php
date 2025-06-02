@@ -134,5 +134,3 @@ try {
 </div>
 </body>
 </html>
-
-.
